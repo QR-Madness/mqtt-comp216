@@ -50,9 +50,9 @@ except Exception as e:
 try:
     for i in range(5):
         # publish to the topic
-        result = client.publish("default_ship/001", json.dumps(data_generator.generate_next().__str__()))
+        result = client.publish("default_ship/001", json.dumps(data_generator.generate_next().__dict__()))
         if result.is_published():
-            print("[Tx] Packet sent to broker.")
+            print(tc.colored("[Tx]", "green") + " Packet sent to broker.")
         else:
             print(tc.colored("[FAIL Tx] Error sending packet to broker" + result.rc))
 

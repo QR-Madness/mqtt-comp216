@@ -18,7 +18,7 @@ class DataTransmitPacket:
     location_z: float
     rotation_vector: str
     speed_mps: float
-    date_of_transmittal: datetime
+    timestamp_transmittal: datetime
 
     def __init__(self):
         # randomize location coordinates with a max value cmax
@@ -28,10 +28,20 @@ class DataTransmitPacket:
         # randomize rotation vector in format 'ST-> = {x2 - x1, y2 - y1, z2 - z1}'
         self.rotation_vector = "{ t2=" + str(random() * self.vector_max_source) + ", s1= " "}"
         self.speed_mps = random() * self.speed_max
-        self.date_of_transmittal = datetime.datetime.now()
+        self.timestamp_transmittal = datetime.datetime.now()
+
+    def __dict__(self):
+        """ Converts the class to a formatted dictionary"""
+        return {
+            'date_of_transmittal': self.timestamp_transmittal.__str__(),
+            'location_x': self.location_x,
+            'location_y': self.location_y,
+            'location_z': self.location_z,
+            'speed_mps': self.speed_mps,
+        }
 
     def __str__(self):
-        return "POSITION==(" + self.location_x.__str__() + ", " + self.location_y.__str__() + ", " + self.location_z.__str__() + ")"
+        return self.timestamp_transmittal.__str__() + "::POSITION==(" + self.location_x.__str__() + ", " + self.location_y.__str__() + ", " + self.location_z.__str__() + ")"
 
 
 class data_generator_g5:
