@@ -1,5 +1,6 @@
 # basic data packet
 import datetime
+import json
 from random import random
 
 
@@ -58,4 +59,4 @@ class data_generator_g5:
         :return Data packet dictionary containing generated values.
         """
         self.packet_generate_count += 1
-        return DataTransmitPacket()
+        return json.dumps(DataTransmitPacket().__dict__())

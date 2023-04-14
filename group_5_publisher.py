@@ -1,63 +1,46 @@
-"""
-    MQTT Publisher by Group 5
-"""
-import json
-from argparse import ArgumentParser
-
 import paho.mqtt.client as mqtt
-import termcolor as tc
-
+import json
+import random
+import time
 from group_5_data_generator import data_generator_g5
 
-arg_parser = ArgumentParser("MQTT -- Group 5 -- Publisher Module")
-# arg_parser.add_argument("--debug-mode" "-t",
-#                         type=argparse.BooleanOptionalAction,
-#                         help="Run tests and try to find issues")
-arg_parser.add_argument("-p", "--port",
-                        type=int,
-                        default=1883)
-arg_parser.add_argument("-a", "--address",
-                        type=str,
-                        default="localhost")
-arg_parser.add_argument("-t", "--root-topic",
-                        type=str,
-                        default="default_ship")
 
-"""
-    ----------- MAIN CODE -----------
-"""
-args = arg_parser.parse_args()
-# broker information
-broker_port = args.port
-broker_address = args.address
+class Publisher:
+    def __init__(self, address, port, topic, generator=data_generator_g5()):
+        self.address = address
+        self.port = port
+        self.topic = topic
+        self.client = mqtt.Client()
+        self.generator = generator
 
-# begin program
-print(tc.colored("Initiating MQTT publisher...", "blue", attrs=["blink", "reverse"]))
+    def should_fail(self):
+        return random.randint(0, 100) == 1
 
-client = mqtt.Client()
-data_generator = data_generator_g5()
+    def should_corrupt(self):
+        return random.uniform(0, 100) < 0.5
 
-# attempt a connection to the MQTT broker
-try:
-    client.connect(broker_address, broker_port)
-    if client.is_connected():
-        print(tc.colored("[PASS] Connection established to MQTT broker", "green"))
-
-except Exception as e:
-    print(tc.colored("[FAIL] Couldn't establish connection to MQTT broker || CAUSE :: \n" + str(e), "red"))
-
-# start send generated packets to broker
-try:
-    for i in range(5):
-        # publish to the topic
-        result = client.publish("default_ship/001", json.dumps(data_generator.generate_next().__dict__()))
-        if result.is_published():
-            print(tc.colored("[Tx]", "green") + " Packet sent to broker.")
+    def publish(self):
+        if self.should_fail():
+            pass
+        if self.should_corrupt():
+            value = json.dumps({
+                "corrupted": 0.1
+            })
         else:
-            print(tc.colored("[FAIL Tx] Error sending packet to broker" + result.rc))
+            value = self.generator.generate_next()
+        self.client.connect(self.address, self.port)
+        self.client.publish(self.topic, value)
 
-except Exception as e:
-    print(tc.colored("[FAIL] Data couldn't be published || CAUSE :: \n" + str(e), "red"))
 
-# free resources
-client.disconnect()
+# Define the main function for generating and publishing the sensor data
+def main():
+    publisher1 = Publisher("localhost", 1883, "example/topic1")
+    publisher2 = Publisher("localhost", 1883, "example/topic2")
+    while True:
+        publisher1.publish()
+        publisher2.publish()
+        time.sleep(10)
+
+
+if __name__ == '__main__':
+    main()
