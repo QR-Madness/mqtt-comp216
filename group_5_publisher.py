@@ -1,7 +1,9 @@
-import paho.mqtt.client as mqtt
 import json
 import random
 import time
+
+import paho.mqtt.client as mqtt
+
 from group_5_data_generator import data_generator_g5
 
 
@@ -11,6 +13,7 @@ class Publisher:
         self.port = port
         self.topic = topic
         self.client = mqtt.Client()
+        self.client.connect(self.address, self.port)
         self.generator = generator
 
     def should_fail(self):
@@ -28,8 +31,8 @@ class Publisher:
             })
         else:
             value = self.generator.generate_next()
-        self.client.connect(self.address, self.port)
         self.client.publish(self.topic, value)
+        print("[SENT] :: " + self.topic + " DUMP::" + value)
 
 
 # Define the main function for generating and publishing the sensor data
@@ -39,7 +42,7 @@ def main():
     while True:
         publisher1.publish()
         publisher2.publish()
-        time.sleep(10)
+        time.sleep(0.1)
 
 
 if __name__ == '__main__':

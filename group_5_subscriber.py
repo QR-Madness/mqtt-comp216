@@ -1,15 +1,21 @@
-import paho.mqtt.client as mqtt
 import json
 import tkinter as tk
+
+import paho.mqtt.client as mqtt
 
 
 class Subscriber:
     def __init__(self, client_id, broker_address, topic):
-        self.client = None
         self.client_id = client_id
+        self.client = mqtt.Client(self.client_id)
         self.broker_address = broker_address
         self.topic = topic
         self.root = tk.Tk()
+        self.client.connect(self.broker_address, 1883, 60)
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+        self.client.on_connect_fail = self.on_connect_failed
+
         self.root.title(f"MQTT Subscriber | {self.client_id}")
 
         self.label_topic = tk.Label(self.root, text="Topic: " + self.topic)
@@ -30,11 +36,7 @@ class Subscriber:
         self.root.after(0, self.run)
 
     def run(self):
-        self.client = mqtt.Client(self.client_id)
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.on_connect_fail = self.on_connect_failed
-        self.client.connect(self.broker_address, 1883, 60)
+
         self.client.loop_start()
         self.root.mainloop()
 
