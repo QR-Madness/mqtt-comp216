@@ -42,7 +42,7 @@ def main():
     while True:
         publisher1.publish()
         publisher2.publish()
-        time.sleep(0.1)
+        time.sleep(1)
 
 
 if __name__ == '__main__':
